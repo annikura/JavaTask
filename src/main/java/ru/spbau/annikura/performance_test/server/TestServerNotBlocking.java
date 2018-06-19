@@ -3,7 +3,6 @@ package ru.spbau.annikura.performance_test.server;
 import ru.spbau.annikura.performance_test.server.tasks.SortingTask;
 import ru.spbau.annikura.performance_test.server.tasks.TaskContext;
 
-import javax.xml.ws.Holder;
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -42,6 +41,10 @@ public class TestServerNotBlocking implements PerformanceTestServerInterface {
                     sortThreadPool.submit(() -> {
                         new SortingTask().call(sortingTaskContext, writingTaskContext -> {
                             writingLoop.addChannel(channel, writingTaskContext, taskContext -> {
+                                if (taskContext.isLast()) {
+                                    readingLoop.remove(channel);
+                                    writingLoop.remove(channel);
+                                }
                             }, (writingTaskContext1, e) -> {
                                 Logger.getAnonymousLogger().severe("Writing failed: " + e.getMessage());
                             });
@@ -53,8 +56,6 @@ public class TestServerNotBlocking implements PerformanceTestServerInterface {
                     Logger.getAnonymousLogger().severe("Reading failed: " + e.getMessage());
                 });
 
-
-
                 Logger.getAnonymousLogger().info("Accepted new connection");
 
             } catch (IOException e) {
@@ -62,5 +63,5 @@ public class TestServerNotBlocking implements PerformanceTestServerInterface {
             }
         }
     }
-    }
 }
+
