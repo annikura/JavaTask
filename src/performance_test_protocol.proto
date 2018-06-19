@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package performance_tester;
+
+option java_package = "ru.spbau.annikura.performance_test";
+
+
+message SortRequest {
+    required int32 arraySize = 1;
+    repeated int32 arrayElements = 2;
+    optional bool isLast = 8;
+}
+
+message SortResponse {
+    required int32 arraySize = 3;
+    repeated int32 arrayElements = 4;
+
+    message Statistics {
+        required int64 requestTime = 5;
+        required int64 sortTime = 6;
+    }
+
+    required Statistics stats = 7;
+}
