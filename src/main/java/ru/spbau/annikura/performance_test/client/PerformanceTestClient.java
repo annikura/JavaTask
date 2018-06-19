@@ -62,14 +62,15 @@ public class PerformanceTestClient implements Callable<TestResult> {
             assert validateSortResult(array, response.getArrayElementsList());
             PerformanceTestProtocol.SortResponse.Statistics stats = response.getStats();
             testResult.addRequestStats(stats.getSortTime(), stats.getRequestTime());
-
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException ignore) { }
+            if (i != numOfRequests - 1) {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException ignore) {
+                }
+            }
         }
-
-        terminate();
         testResult.addClientStats(System.currentTimeMillis() - startClientTime);
+        terminate();
         return testResult;
     }
 
