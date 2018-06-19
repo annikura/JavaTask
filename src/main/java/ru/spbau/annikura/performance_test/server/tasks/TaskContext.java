@@ -69,7 +69,7 @@ public class TaskContext {
 
         public ReadingTaskContext(@NotNull final SocketChannel channel) {
             this.channel = channel;
-            attachedContexts.put(WritingTaskContext.class, this);
+            attachedContexts.put(ReadingTaskContext.class, this);
         }
 
         public SocketChannel getChannel() {
@@ -92,11 +92,10 @@ public class TaskContext {
 
     public class SortingTaskContext extends TaskContext {
         private List<Integer> array;
-
-
         public SortingTaskContext(@NotNull final PerformanceTestProtocol.SortRequest request) {
             array = request.getArrayElementsList();
             isLast = request.getIsLast();
+            attachedContexts.put(SortingTaskContext.class, this);
         }
 
         public List<Integer> getArray() {
