@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public class TestServerSimple implements PerformanceTestServerInterface {
     public void start(int port) {
-        Logger.getAnonymousLogger().info("Starting splitted server");
+        Logger.getAnonymousLogger().info("Starting simple server");
         ServerSocketChannel serverSocketChannel;
         try {
             serverSocketChannel = ServerSocketChannel.open();
