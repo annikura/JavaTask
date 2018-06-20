@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.spbau.annikura.performance_test.client.PerformanceTester;
 import ru.spbau.annikura.performance_test.client.TestResult;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.logging.Logger;
 
 public class ScenesCollection {
@@ -394,7 +394,7 @@ public class ScenesCollection {
         return new Scene(body, width, height);
     }
 
-    public Scene newChartScene(double width, double height, @NotNull Stage stage) {
+    public Scene newChartScene(double width, double height, @NotNull Stage stage) throws IOException {
         VBox body = new VBox(10);
         body.setAlignment(Pos.CENTER);
         Button backButton = new Button("Back");
@@ -413,14 +413,27 @@ public class ScenesCollection {
         XYChart.Series notBlockingServerSeries = new XYChart.Series();
         notBlockingServerSeries.setName("Not blocking server data");
 
+        String fileSuffix = parameterType.toString() + "-" + chartType.toString();
+        FileWriter simpleServerOut = new FileWriter(new File("simple_server-" + fileSuffix));
+        FileWriter threadPoolServerOut = new FileWriter(new File("thread_pool_server-" + fileSuffix));
+        FileWriter notBlockingServerOut = new FileWriter(new File("not_blocking_server-" + fileSuffix));
+
         for (int i = 0; i < numOfSteps; i++) {
+            int x = from + stepSize * i;
             simpleServerSeries.getData().add(new XYChart.Data<>(
-                    from + stepSize * i, chartType.retrieveValue(simpleServerResults[i])));
+                    x, chartType.retrieveValue(simpleServerResults[i])));
+            simpleServerOut.write(x + " " + chartType.retrieveValue(simpleServerResults[i]) + "\n");
             threadPoolServerSeries.getData().add(new XYChart.Data<>(
-                    from + stepSize * i, chartType.retrieveValue(threadPoolServerResults[i])));
+                    x, chartType.retrieveValue(threadPoolServerResults[i])));
+            threadPoolServerOut.write(x + " " + chartType.retrieveValue(threadPoolServerResults[i]) + "\n");
             notBlockingServerSeries.getData().add(new XYChart.Data<>(
-                    from + stepSize * i, chartType.retrieveValue(notBlockingServerResults[i])));
+                    x, chartType.retrieveValue(notBlockingServerResults[i])));
+            notBlockingServerOut.write(x + " " + chartType.retrieveValue(notBlockingServerResults[i]) + "\n");
         }
+
+        simpleServerOut.close();
+        threadPoolServerOut.close();
+        notBlockingServerOut.close();
 
         lineChart.getData().addAll(simpleServerSeries, threadPoolServerSeries, notBlockingServerSeries);
         body.getChildren().addAll(lineChart, backButton);
