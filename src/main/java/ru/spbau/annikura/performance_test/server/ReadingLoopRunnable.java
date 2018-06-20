@@ -18,7 +18,13 @@ import java.util.logging.Logger;
 
 public class ReadingLoopRunnable implements Runnable {
     volatile private Selector selector;
-    final HashMap<SocketChannel, SelectionKey> keys = new HashMap<>();
+    private final HashMap<SocketChannel, SelectionKey> keys = new HashMap<>();
+    private final TestServerNotBlocking server;
+
+
+    public ReadingLoopRunnable(@NotNull TestServerNotBlocking serverLink) {
+        server = serverLink;
+    }
 
     {
         try {
@@ -38,15 +44,12 @@ public class ReadingLoopRunnable implements Runnable {
                 Logger.getAnonymousLogger().severe("Reading selector failed: " + e.getMessage());
             }
             if (selected == 0) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ignored) { }
                 continue;
             }
             Set<SelectionKey> keys = selector.selectedKeys();
             for (SelectionKey key : keys) {
                 if (((IncompleteTask) key.attachment()).makeAttempt()) {
-                    key.cancel();
+                    server.subscribeChannel((SocketChannel) key.channel());
                 }
             }
             keys.clear();

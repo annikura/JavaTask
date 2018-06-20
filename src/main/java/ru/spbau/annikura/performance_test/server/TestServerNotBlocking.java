@@ -1,10 +1,12 @@
 package ru.spbau.annikura.performance_test.server;
 
+import org.jetbrains.annotations.NotNull;
 import ru.spbau.annikura.performance_test.server.tasks.SortingTask;
 import ru.spbau.annikura.performance_test.server.tasks.TaskContext;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.Channel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ExecutorService;
@@ -12,6 +14,11 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class TestServerNotBlocking implements PerformanceTestServerInterface {
+    private final ReadingLoopRunnable readingLoop = new ReadingLoopRunnable(this);
+    private final WritingLoopRunnable writingLoop = new WritingLoopRunnable();
+    private final ExecutorService sortThreadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+
     public void start(int port) {
         Logger.getAnonymousLogger().info("Starting not blocking server");
         ServerSocketChannel serverSocketChannel;
@@ -23,9 +30,6 @@ public class TestServerNotBlocking implements PerformanceTestServerInterface {
             return;
         }
 
-        ReadingLoopRunnable readingLoop = new ReadingLoopRunnable();
-        WritingLoopRunnable writingLoop = new WritingLoopRunnable();
-        ExecutorService sortThreadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         new Thread(readingLoop).start();
         new Thread(writingLoop).start();
@@ -33,37 +37,41 @@ public class TestServerNotBlocking implements PerformanceTestServerInterface {
         while (true) {
             try {
                 SocketChannel channel = serverSocketChannel.accept();
-
-                TaskContext context = new TaskContext();
-                TaskContext.ReadingTaskContext readContext = context.new ReadingTaskContext(channel);
-                context.new WritingTaskContext(channel);
                 channel.configureBlocking(false);
-
-                readingLoop.addChannel(channel, readContext, sortingTaskContext -> {
-                    sortThreadPool.submit(() -> {
-                        new SortingTask().call(sortingTaskContext, writingTaskContext -> {
-                            writingLoop.addChannel(channel, writingTaskContext, taskContext -> {
-                                if (taskContext.isLast()) {
-                                    readingLoop.remove(channel);
-                                    writingLoop.remove(channel);
-                                }
-                            }, (writingTaskContext1, e) -> {
-                                Logger.getAnonymousLogger().severe("Writing failed: " + e.getMessage());
-                            });
-                        }, (sortingTaskContext1, e) -> {
-                            Logger.getAnonymousLogger().severe("Sort failed: " + e.getMessage());
-                        });
-                    });
-                }, (readingTaskContext, e) -> {
-                    Logger.getAnonymousLogger().severe("Reading failed: " + e.getMessage());
-                });
-
-                Logger.getAnonymousLogger().info("Accepted new connection");
+                subscribeChannel(channel);
 
             } catch (IOException e) {
                 Logger.getAnonymousLogger().warning("Failed to establish connection with client: " + e.getMessage());
             }
         }
+    }
+
+    public void subscribeChannel(@NotNull SocketChannel channel) {
+        TaskContext context = new TaskContext();
+        TaskContext.ReadingTaskContext readContext = context.new ReadingTaskContext(channel);
+        context.new WritingTaskContext(channel);
+
+        readingLoop.addChannel(channel, readContext, sortingTaskContext -> {
+            sortThreadPool.submit(() -> {
+                new SortingTask().call(sortingTaskContext, writingTaskContext -> {
+                    writingLoop.addChannel(channel, writingTaskContext, taskContext -> {
+                        if (taskContext.isLast()) {
+                            readingLoop.remove(channel);
+                            writingLoop.remove(channel);
+                        }
+                    }, (writingTaskContext1, e) -> {
+                        Logger.getAnonymousLogger().severe("Writing failed: " + e.getMessage());
+                    });
+                }, (sortingTaskContext1, e) -> {
+                    Logger.getAnonymousLogger().severe("Sort failed: " + e.getMessage());
+                });
+            });
+        }, (readingTaskContext, e) -> {
+            Logger.getAnonymousLogger().severe("Reading failed: " + e.getMessage());
+        });
+
+        Logger.getAnonymousLogger().info("Accepted new connection");
+
     }
 }
 

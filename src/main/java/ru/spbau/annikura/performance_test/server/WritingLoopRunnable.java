@@ -39,9 +39,6 @@ public class WritingLoopRunnable implements Runnable {
                 Logger.getAnonymousLogger().severe("Writing selector failed: " + e.getMessage());
             }
             if (selected == 0) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ignored) { }
                 continue;
             }
             Set<SelectionKey> keys = selector.selectedKeys();

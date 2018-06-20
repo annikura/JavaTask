@@ -25,6 +25,8 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
                     }
                     Logger.getAnonymousLogger().info("Ready to read");
                     int read = context.getChannel().read(buf);
+                    if (context.getChannel().isBlocking() && read == -1)
+                        return true;
                     Logger.getAnonymousLogger().info("Read " + read + " bytes");
                     if (buf.position() < buf.limit())
                         return false;
@@ -56,7 +58,13 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
     public void call(@NotNull TaskContext.ReadingTaskContext context,
                      @NotNull Consumer<TaskContext.SortingTaskContext> onSuccess,
                      @NotNull BiConsumer<TaskContext.ReadingTaskContext, Exception> onFailure) {
-        IncompleteTask task = createIncompleteTask(context, onSuccess, onFailure);
+        IncompleteTask task = createIncompleteTask(context, new Consumer<TaskContext.SortingTaskContext>() {
+            @Override
+            public void accept(TaskContext.SortingTaskContext sortingTaskContext) {
+                Logger.getAnonymousLogger().info(sortingTaskContext.getArray().toString());
+                onSuccess.accept(sortingTaskContext);
+            }
+        }, onFailure);
         while (!task.makeAttempt());
     }
 }

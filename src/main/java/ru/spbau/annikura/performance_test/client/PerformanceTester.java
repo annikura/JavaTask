@@ -22,9 +22,9 @@ public class PerformanceTester {
     public TestResult startTest(@NotNull final String host, int port) throws IOException {
         int cores = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(cores);
-        Callable<TestResult> client = new PerformanceTestClient(host, port, arraySize, requestDelay, requestsPerClient);
         @NotNull ArrayList<Future<TestResult>> futureResults = new ArrayList<>();
         for (int i = 0; i < numOfClients; i++) {
+            Callable<TestResult> client = new PerformanceTestClient(host, port, arraySize, requestDelay, requestsPerClient);
             futureResults.add(executor.submit(client));
         }
         TestResult result = new TestResult();

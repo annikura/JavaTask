@@ -46,7 +46,7 @@ public class PerformanceTestClient implements Callable<TestResult> {
         for (int i = 0; i < numOfRequests; i++) {
             Logger.getAnonymousLogger().info("Starting request #" + i);
             for (int j = 0; j < arraySize; j++) {
-                array.add(i, random.nextInt());
+                array.add(i, 1);
             }
             @NotNull PerformanceTestProtocol.SortRequest request = PerformanceTestProtocol.SortRequest.newBuilder()
                     .setArraySize(arraySize)
@@ -60,7 +60,7 @@ public class PerformanceTestClient implements Callable<TestResult> {
 
             Logger.getAnonymousLogger().info("Ready to read");
             int responseDataSize = in.readInt();
-            Logger.getAnonymousLogger().info("Received response size: " + responseDataSize + " in thread " + Thread.currentThread().getName());
+            Logger.getAnonymousLogger().info("Received response size: " + Integer.toString(responseDataSize, 16) + " in thread " + Thread.currentThread().getName());
             byte[] responseData = new byte[responseDataSize];
             int readBytes = 0;
             while (readBytes < responseDataSize) {
