@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PerformanceTestServerStarter {
     private PerformanceTestServerInterface server;
-    PerformanceTestServerStarter(@NotNull ServerMode mode) {
+    public PerformanceTestServerStarter(@NotNull ServerMode mode) {
         switch (mode) {
             case BLOCKING_SPLITTED:
                 server = new TestServerSimple();
