@@ -6,10 +6,7 @@ import ru.spbau.annikura.performance_test.server.tasks.ReadingRequestTask;
 import ru.spbau.annikura.performance_test.server.tasks.TaskContext;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.function.BiConsumer;

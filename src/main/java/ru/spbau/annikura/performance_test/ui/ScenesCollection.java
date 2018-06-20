@@ -385,15 +385,6 @@ public class ScenesCollection {
         }
     }
 
-    private Scene newWaitScene(double width, double height, Stage stage) {
-        VBox body = new VBox();
-        Label wait = new Label("Please, wait");
-        wait.setStyle(TEXT_CSS);
-        body.setAlignment(Pos.CENTER);
-        body.getChildren().addAll(wait);
-        return new Scene(body, width, height);
-    }
-
     public Scene newChartScene(double width, double height, @NotNull Stage stage) {
         VBox body = new VBox(10);
         body.setAlignment(Pos.CENTER);
