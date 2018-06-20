@@ -37,7 +37,7 @@ public class PerformanceTestClient implements Callable<TestResult> {
 
         TestResult testResult = new TestResult();
         @NotNull Random random = new Random();
-        @NotNull ArrayList<Integer> array = new ArrayList<Integer>(arraySize);
+        @NotNull ArrayList<Integer> array = new ArrayList<>(arraySize);
         for (int i = 0; i < numOfRequests; i++) {
             Logger.getAnonymousLogger().info("Starting request #" + i);
             for (int j = 0; j < arraySize; j++) {
@@ -47,21 +47,26 @@ public class PerformanceTestClient implements Callable<TestResult> {
                     .setArraySize(arraySize)
                     .setIsLast(i == (numOfRequests - 1))
                     .addAllArrayElements(array).build();
-            ByteBuffer buf = ByteBuffer.allocate(4 + request.getSerializedSize());
-            buf.putInt(request.getSerializedSize());
-            buf.put(request.toByteArray());
+            byte[] requestData = request.toByteArray();
+            ByteBuffer buf = ByteBuffer.allocate(4 + requestData.length);
+            buf.clear();
+            buf.putInt(requestData.length);
+            buf.put(requestData);
             buf.flip();
             Logger.getAnonymousLogger().info("Ready to write");
             channel.write(buf);
             Logger.getAnonymousLogger().info("Sent request");
             buf = ByteBuffer.allocate(4);
+            buf.clear();
 
             Logger.getAnonymousLogger().info("Ready to read");
             channel.read(buf);
+            Logger.getAnonymousLogger().info("Read " + buf.position() + " bytes");
             buf.flip();
             int responseDataSize = buf.getInt();
-            Logger.getAnonymousLogger().info("Received response size: " + responseDataSize);
+            Logger.getAnonymousLogger().info("Received response size: " + responseDataSize + " in thread " + Thread.currentThread().getName());
             buf = ByteBuffer.allocate(responseDataSize);
+            buf.clear();
             channel.read(buf);
             Logger.getAnonymousLogger().info("Received response");
 
