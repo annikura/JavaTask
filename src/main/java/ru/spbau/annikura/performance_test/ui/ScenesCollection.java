@@ -394,7 +394,7 @@ public class ScenesCollection {
         return new Scene(body, width, height);
     }
 
-    public Scene newChartScene(double width, double height, @NotNull Stage stage) throws IOException {
+    public Scene newChartScene(double width, double height, @NotNull Stage stage) {
         VBox body = new VBox(10);
         body.setAlignment(Pos.CENTER);
         Button backButton = new Button("Back");
@@ -413,28 +413,31 @@ public class ScenesCollection {
         XYChart.Series notBlockingServerSeries = new XYChart.Series();
         notBlockingServerSeries.setName("Not blocking server data");
 
-        String fileSuffix = parameterType.toString() + "-" + chartType.toString();
-        FileWriter simpleServerOut = new FileWriter(new File("simple_server-" + fileSuffix));
-        FileWriter threadPoolServerOut = new FileWriter(new File("thread_pool_server-" + fileSuffix));
-        FileWriter notBlockingServerOut = new FileWriter(new File("not_blocking_server-" + fileSuffix));
+        try {
+            String fileSuffix = parameterType.toString() + "-" + chartType.toString();
+            FileWriter simpleServerOut = new FileWriter(new File("simple_server-" + fileSuffix));
+            FileWriter threadPoolServerOut = new FileWriter(new File("thread_pool_server-" + fileSuffix));
+            FileWriter notBlockingServerOut = new FileWriter(new File("not_blocking_server-" + fileSuffix));
 
-        for (int i = 0; i < numOfSteps; i++) {
-            int x = from + stepSize * i;
-            simpleServerSeries.getData().add(new XYChart.Data<>(
-                    x, chartType.retrieveValue(simpleServerResults[i])));
-            simpleServerOut.write(x + " " + chartType.retrieveValue(simpleServerResults[i]) + "\n");
-            threadPoolServerSeries.getData().add(new XYChart.Data<>(
-                    x, chartType.retrieveValue(threadPoolServerResults[i])));
-            threadPoolServerOut.write(x + " " + chartType.retrieveValue(threadPoolServerResults[i]) + "\n");
-            notBlockingServerSeries.getData().add(new XYChart.Data<>(
-                    x, chartType.retrieveValue(notBlockingServerResults[i])));
-            notBlockingServerOut.write(x + " " + chartType.retrieveValue(notBlockingServerResults[i]) + "\n");
+            for (int i = 0; i < numOfSteps; i++) {
+                int x = from + stepSize * i;
+                simpleServerSeries.getData().add(new XYChart.Data<>(
+                        x, chartType.retrieveValue(simpleServerResults[i])));
+                simpleServerOut.write(x + " " + chartType.retrieveValue(simpleServerResults[i]) + "\n");
+                threadPoolServerSeries.getData().add(new XYChart.Data<>(
+                        x, chartType.retrieveValue(threadPoolServerResults[i])));
+                threadPoolServerOut.write(x + " " + chartType.retrieveValue(threadPoolServerResults[i]) + "\n");
+                notBlockingServerSeries.getData().add(new XYChart.Data<>(
+                        x, chartType.retrieveValue(notBlockingServerResults[i])));
+                notBlockingServerOut.write(x + " " + chartType.retrieveValue(notBlockingServerResults[i]) + "\n");
+            }
+
+            simpleServerOut.close();
+            threadPoolServerOut.close();
+            notBlockingServerOut.close();
+        } catch (IOException e) {
+            Logger.getAnonymousLogger().severe("Failed to write data on disk");
         }
-
-        simpleServerOut.close();
-        threadPoolServerOut.close();
-        notBlockingServerOut.close();
-
         lineChart.getData().addAll(simpleServerSeries, threadPoolServerSeries, notBlockingServerSeries);
         body.getChildren().addAll(lineChart, backButton);
         return new Scene(body, width, height);
