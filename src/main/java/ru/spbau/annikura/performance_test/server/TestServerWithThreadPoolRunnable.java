@@ -33,10 +33,13 @@ public class TestServerWithThreadPoolRunnable implements Runnable {
         while (!isLast.value) {
             TaskContext context = new TaskContext();
             new ReadingRequestTask().call(context.new ReadingTaskContext(channel), sortingTaskContext -> {
+                Logger.getAnonymousLogger().info("Read successfully");
                 threadPool.submit(() -> {
                     new SortingTask().call(sortingTaskContext, writingTaskContext -> {
+                        Logger.getAnonymousLogger().info("Sorted successfully.");
                         outputService.submit(() -> {
                             new WritingResponseTask().call(writingTaskContext, taskContext -> {
+                                Logger.getAnonymousLogger().info("Wrote successfully");
                                 isLast.value = taskContext.isLast();
                             }, (writingTaskContext1, e) -> {
                                 Logger.getAnonymousLogger().severe("Writing failed: " + e.getMessage());

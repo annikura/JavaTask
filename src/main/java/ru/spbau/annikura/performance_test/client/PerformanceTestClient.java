@@ -2,6 +2,7 @@ package ru.spbau.annikura.performance_test.client;
 
 import org.jetbrains.annotations.NotNull;
 import ru.spbau.annikura.performance_test.PerformanceTestProtocol;
+import sun.rmi.runtime.Log;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 import static java.util.Collections.sort;
 
@@ -37,6 +39,7 @@ public class PerformanceTestClient implements Callable<TestResult> {
         @NotNull Random random = new Random();
         @NotNull ArrayList<Integer> array = new ArrayList<Integer>(arraySize);
         for (int i = 0; i < numOfRequests; i++) {
+            Logger.getAnonymousLogger().info("Starting request #" + i);
             for (int j = 0; j < arraySize; j++) {
                 array.add(i, random.nextInt());
             }
@@ -48,20 +51,26 @@ public class PerformanceTestClient implements Callable<TestResult> {
             buf.putInt(request.getSerializedSize());
             buf.put(request.toByteArray());
             buf.flip();
+            Logger.getAnonymousLogger().info("Ready to write");
             channel.write(buf);
-
+            Logger.getAnonymousLogger().info("Sent request");
             buf = ByteBuffer.allocate(4);
+
+            Logger.getAnonymousLogger().info("Ready to read");
             channel.read(buf);
             buf.flip();
             int responseDataSize = buf.getInt();
+            Logger.getAnonymousLogger().info("Received response size: " + responseDataSize);
             buf = ByteBuffer.allocate(responseDataSize);
             channel.read(buf);
+            Logger.getAnonymousLogger().info("Received response");
 
             @NotNull PerformanceTestProtocol.SortResponse response =
                     PerformanceTestProtocol.SortResponse.parseFrom(buf.array());
             assert validateSortResult(array, response.getArrayElementsList());
             PerformanceTestProtocol.SortResponse.Statistics stats = response.getStats();
             testResult.addRequestStats(stats.getSortTime(), stats.getRequestTime());
+            Logger.getAnonymousLogger().info("Counted stats");
             if (i != numOfRequests - 1) {
                 try {
                     Thread.sleep(delay);

@@ -15,6 +15,7 @@ import ru.spbau.annikura.performance_test.client.PerformanceTester;
 import ru.spbau.annikura.performance_test.client.TestResult;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class ScenesCollection {
     private String host;
@@ -316,7 +317,9 @@ public class ScenesCollection {
             PerformanceTester tester = new PerformanceTester(arraySize, numOfClients, delay, 4);
             try {
                 simpleServerResults[i] = tester.startTest(host, port);
+                Logger.getAnonymousLogger().info("Simple done");
                 threadPoolServerResults[i] = tester.startTest(host, port + 1);
+                Logger.getAnonymousLogger().info("Pool done");
                 notBlockingServerResults[i] = tester.startTest(host, port + 2);
             } catch (IOException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);

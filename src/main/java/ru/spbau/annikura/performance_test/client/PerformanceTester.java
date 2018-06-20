@@ -23,7 +23,7 @@ public class PerformanceTester {
         int cores = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(cores);
         Callable<TestResult> client = new PerformanceTestClient(host, port, arraySize, requestDelay, requestsPerClient);
-        @NotNull ArrayList<Future<TestResult>> futureResults = new ArrayList<Future<TestResult>>();
+        @NotNull ArrayList<Future<TestResult>> futureResults = new ArrayList<>();
         for (int i = 0; i < numOfClients; i++) {
             futureResults.add(executor.submit(client));
         }
