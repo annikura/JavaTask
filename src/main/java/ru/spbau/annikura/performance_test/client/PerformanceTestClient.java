@@ -58,9 +58,7 @@ public class PerformanceTestClient implements Callable<TestResult> {
             out.flush();
             Logger.getAnonymousLogger().info("Sent request");
 
-            Logger.getAnonymousLogger().info("Ready to read");
             int responseDataSize = in.readInt();
-            Logger.getAnonymousLogger().info("Received response size: " + Integer.toString(responseDataSize, 16) + " in thread " + Thread.currentThread().getName());
             byte[] responseData = new byte[responseDataSize];
             int readBytes = 0;
             while (readBytes < responseDataSize) {
