@@ -1,6 +1,7 @@
 package ru.spbau.annikura.performance_test.server;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.util.logging.Logger;
 
@@ -10,6 +11,7 @@ public class TestServerSimple implements PerformanceTestServerInterface {
         ServerSocketChannel serverSocketChannel;
         try {
             serverSocketChannel = ServerSocketChannel.open();
+            serverSocketChannel.bind(new InetSocketAddress(port));
         } catch (IOException e) {
             Logger.getAnonymousLogger().severe("Unable to run server socket. Shutting down...: " + e.getMessage());
             return;

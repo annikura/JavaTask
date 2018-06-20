@@ -27,8 +27,11 @@ public class TestServerSimpleRunnable implements Runnable {
 
             TaskContext.ReadingTaskContext rContext = context.getAttachedContext(TaskContext.ReadingTaskContext.class);
             new ReadingRequestTask().call(rContext, sortingTaskContext -> {
+                Logger.getAnonymousLogger().info("Read successfully.");
                 new SortingTask().call(sortingTaskContext, writingTaskContext -> {
+                    Logger.getAnonymousLogger().info("Sorted successfully.");
                     new WritingResponseTask().call(writingTaskContext, taskContext -> {
+                        Logger.getAnonymousLogger().info("Wrote successfully.");
                         holder.value = taskContext.isLast();
                     }, (writingTaskContext1, e) -> {
                         Logger.getAnonymousLogger().severe("Writing failed: " + e.getMessage());

@@ -4,6 +4,7 @@ import ru.spbau.annikura.performance_test.server.tasks.SortingTask;
 import ru.spbau.annikura.performance_test.server.tasks.TaskContext;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ExecutorService;
@@ -16,6 +17,7 @@ public class TestServerNotBlocking implements PerformanceTestServerInterface {
         ServerSocketChannel serverSocketChannel;
         try {
             serverSocketChannel = ServerSocketChannel.open();
+            serverSocketChannel.bind(new InetSocketAddress(port));
         } catch (IOException e) {
             Logger.getAnonymousLogger().severe("Unable to run server socket. Shutting down...: " + e.getMessage());
             return;

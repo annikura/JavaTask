@@ -6,6 +6,7 @@ import ru.spbau.annikura.performance_test.PerformanceTestProtocol;
 import java.nio.ByteBuffer;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskContext, TaskContext.SortingTaskContext> {
     public IncompleteTask createIncompleteTask(@NotNull final TaskContext.ReadingTaskContext context,
@@ -18,20 +19,27 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
             @Override
             public boolean makeAttempt() {
                 try {
-                    context.getChannel().read(buf);
-
+                    Logger.getAnonymousLogger().info("Ready to read");
+                    int read = context.getChannel().read(buf);
+                    Logger.getAnonymousLogger().info("Read " + read + " bytes");
                     if (buf.position() < buf.limit())
                         return false;
                     buf.flip();
+                    Logger.getAnonymousLogger().info("Flip!");
                     if (requestSize == -1) {
                         requestSize = buf.getInt();
+                        Logger.getAnonymousLogger().info("Read request size: " + requestSize);
                         buf = ByteBuffer.allocate(requestSize);
                         return makeAttempt();
                     }
+                    Logger.getAnonymousLogger().info("Reading request");
                     context.setStartRequestHandleTime();
                     PerformanceTestProtocol.SortRequest request = PerformanceTestProtocol.SortRequest.parseFrom(buf.array());
+                    Logger.getAnonymousLogger().info("Parsed request");
                     context.setIsLast(request.getIsLast());
-                    onSuccess.accept(context.attachContext(context.getMainContext().new SortingTaskContext(request)));
+                    Logger.getAnonymousLogger().info("onSuccess");
+
+                    onSuccess.accept(context.getMainContext().new SortingTaskContext(request));
                     return true;
                 } catch (Exception e) {
                     onFailure.accept(context, e);

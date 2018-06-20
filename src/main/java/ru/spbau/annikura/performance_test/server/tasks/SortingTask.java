@@ -5,15 +5,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public class SortingTask implements CallbackTask<TaskContext.SortingTaskContext, TaskContext.WritingTaskContext> {
     @Override
     public void call(@NotNull TaskContext.SortingTaskContext context,
                      @NotNull Consumer<TaskContext.WritingTaskContext> onSuccess,
                      @NotNull BiConsumer<TaskContext.SortingTaskContext, Exception> onFailure) {
+        Logger.getAnonymousLogger().info("Starting sort");
         context.setStartSortTime();
         sort(context.getArray());
+        Logger.getAnonymousLogger().info("Sorted");
         context.setFinishedSortTime();
+        Logger.getAnonymousLogger().info("On Success");
         onSuccess.accept(context.getAttachedContext(TaskContext.WritingTaskContext.class));
     }
 

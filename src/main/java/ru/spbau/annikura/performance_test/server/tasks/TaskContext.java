@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.spbau.annikura.performance_test.PerformanceTestProtocol;
 
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class TaskContext {
     private long finishRequestHandleTime;
 
     public TaskContext getMainContext() {
-        return this;
+        return TaskContext.this;
     }
 
     void setIsLast(boolean isLast) {
@@ -51,12 +52,8 @@ public class TaskContext {
         return finishRequestHandleTime - startRequestHandleTime;
     }
 
-    public <T> T attachContext(T context) {
-        attachedContexts.put(context.getClass(), context);
-        return context;
-    }
-
-    public <T> T getAttachedContext(Class<T> clazz) {
+    public <T> T getAttachedContext(@NotNull Class<T> clazz) {
+        System.out.println(attachedContexts);
         return (T) attachedContexts.get(clazz);
     }
 
@@ -93,7 +90,7 @@ public class TaskContext {
     public class SortingTaskContext extends TaskContext {
         private List<Integer> array;
         public SortingTaskContext(@NotNull final PerformanceTestProtocol.SortRequest request) {
-            array = request.getArrayElementsList();
+            array = new ArrayList<>(request.getArrayElementsList());
             isLast = request.getIsLast();
             attachedContexts.put(SortingTaskContext.class, this);
         }
