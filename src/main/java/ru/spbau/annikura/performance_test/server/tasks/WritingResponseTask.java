@@ -13,7 +13,6 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
     public void call(@NotNull final TaskContext.WritingTaskContext context,
                      @NotNull final Consumer<TaskContext> onSuccess,
                      @NotNull final BiConsumer<TaskContext.WritingTaskContext, Exception> onFailure) {
-        Logger.getAnonymousLogger().info("in write method");
         IncompleteTask task = createIncompleteTask(context, onSuccess, onFailure);
         while (!task.makeAttempt());
     }
@@ -47,7 +46,6 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
                 }
                 try {
                     context.getChannel().write(buffer);
-                    Logger.getAnonymousLogger().info("Wrote " + buffer.position() + " bytes out of " + buffer.limit());
                     if (buffer.position() == buffer.limit()) {
                         onSuccess.accept(context.getMainContext());
                         return true;

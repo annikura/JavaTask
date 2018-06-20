@@ -23,11 +23,9 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
                         buf = ByteBuffer.allocate(4);
                         buf.clear();
                     }
-                    Logger.getAnonymousLogger().info("Ready to read");
                     int read = context.getChannel().read(buf);
                     if (context.getChannel().isBlocking() && read == -1)
                         return true;
-                    Logger.getAnonymousLogger().info("Read " + read + " bytes");
                     if (buf.position() < buf.limit())
                         return false;
                     buf.flip();
@@ -38,11 +36,9 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
                         buf.clear();
                         return makeAttempt();
                     }
-                    Logger.getAnonymousLogger().info("Reading request");
                     context.getMainContext().setStartRequestHandleTime();
                     PerformanceTestProtocol.SortRequest request = PerformanceTestProtocol.SortRequest.parseFrom(buf.array());
                     context.getMainContext().setIsLast(request.getIsLast());
-                    Logger.getAnonymousLogger().info("Array size " + request.getArraySize());
 
                     onSuccess.accept(context.getMainContext().new SortingTaskContext(request));
                     return true;

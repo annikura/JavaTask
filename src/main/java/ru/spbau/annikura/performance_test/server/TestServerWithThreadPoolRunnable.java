@@ -43,12 +43,10 @@ public class TestServerWithThreadPoolRunnable implements Runnable {
                             new WritingResponseTask().call(writingTaskContext, taskContext -> {
                                 Logger.getAnonymousLogger().info("Wrote successfully");
                                 isLast.value = taskContext.isLast();
-                                Logger.getAnonymousLogger().info("Set isLast to " + isLast.value);
                             }, (writingTaskContext1, e) -> {
                                 Logger.getAnonymousLogger().severe("Writing failed: " + e.getMessage());
                             });
                         });
-                        Logger.getAnonymousLogger().info("Writing task was submitted");
                     }, (sortingTaskContext1, e) -> {
                         Logger.getAnonymousLogger().severe("Sort failed: " + e.getMessage());
                     });
