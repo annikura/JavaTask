@@ -37,10 +37,12 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
                                     .setSortTime(context.getMainContext().getSortTime())
                                     .setRequestTime(context.getMainContext().getRequestHandleTime())
                             ).build();
-                    Logger.getAnonymousLogger().info("Ready to write " + response.getSerializedSize());
-                    buffer = ByteBuffer.allocate(4 + response.getSerializedSize());
-                    buffer.putInt(response.getSerializedSize());
-                    buffer.put(response.toByteArray());
+                    byte[] responseData = response.toByteArray();
+                    Logger.getAnonymousLogger().info("Ready to write " + responseData.length);
+                    buffer = ByteBuffer.allocate(4 + responseData.length);
+                    buffer.clear();
+                    buffer.putInt(responseData.length);
+                    buffer.put(responseData);
                     buffer.flip();
                 }
                 try {

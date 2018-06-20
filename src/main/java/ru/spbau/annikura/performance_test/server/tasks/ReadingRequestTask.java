@@ -14,11 +14,15 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
                                                @NotNull final BiConsumer<TaskContext.ReadingTaskContext, Exception> onFailure) {
         return new IncompleteTask() {
             private int requestSize = -1;
-            private ByteBuffer buf = ByteBuffer.allocate(4);
+            private ByteBuffer buf;
 
             @Override
             public boolean makeAttempt() {
                 try {
+                    if (buf == null) {
+                        buf = ByteBuffer.allocate(4);
+                        buf.clear();
+                    }
                     Logger.getAnonymousLogger().info("Ready to read");
                     int read = context.getChannel().read(buf);
                     Logger.getAnonymousLogger().info("Read " + read + " bytes");
@@ -29,6 +33,7 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
                         requestSize = buf.getInt();
                         Logger.getAnonymousLogger().info("Read request size: " + requestSize);
                         buf = ByteBuffer.allocate(requestSize);
+                        buf.clear();
                         return makeAttempt();
                     }
                     Logger.getAnonymousLogger().info("Reading request");
