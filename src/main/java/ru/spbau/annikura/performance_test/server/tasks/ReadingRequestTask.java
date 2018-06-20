@@ -58,13 +58,7 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
     public void call(@NotNull TaskContext.ReadingTaskContext context,
                      @NotNull Consumer<TaskContext.SortingTaskContext> onSuccess,
                      @NotNull BiConsumer<TaskContext.ReadingTaskContext, Exception> onFailure) {
-        IncompleteTask task = createIncompleteTask(context, new Consumer<TaskContext.SortingTaskContext>() {
-            @Override
-            public void accept(TaskContext.SortingTaskContext sortingTaskContext) {
-                Logger.getAnonymousLogger().info(sortingTaskContext.getArray().toString());
-                onSuccess.accept(sortingTaskContext);
-            }
-        }, onFailure);
+        IncompleteTask task = createIncompleteTask(context, onSuccess, onFailure);
         while (!task.makeAttempt());
     }
 }

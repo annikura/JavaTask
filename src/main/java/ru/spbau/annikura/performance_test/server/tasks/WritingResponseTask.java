@@ -18,17 +18,6 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
         while (!task.makeAttempt());
     }
 
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-
     public IncompleteTask createIncompleteTask(@NotNull final TaskContext.WritingTaskContext context,
                                                @NotNull final Consumer<TaskContext> onSuccess,
                                                @NotNull final BiConsumer<TaskContext.WritingTaskContext, Exception> onFailure) {
@@ -55,7 +44,6 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
                     buffer.putInt(responseData.length);
                     buffer.put(responseData);
                     buffer.flip();
-                    Logger.getAnonymousLogger().info("Writing buffer: " + bytesToHex(buffer.array()));
                 }
                 try {
                     context.getChannel().write(buffer);
