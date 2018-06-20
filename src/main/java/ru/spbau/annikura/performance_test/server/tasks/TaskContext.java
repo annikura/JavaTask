@@ -53,7 +53,6 @@ public class TaskContext {
     }
 
     public <T> T getAttachedContext(@NotNull Class<T> clazz) {
-        System.out.println(attachedContexts);
         return (T) attachedContexts.get(clazz);
     }
 
@@ -61,7 +60,7 @@ public class TaskContext {
         return isLast;
     }
 
-    public class ReadingTaskContext extends TaskContext {
+    public class ReadingTaskContext {
         private SocketChannel channel;
 
         public ReadingTaskContext(@NotNull final SocketChannel channel) {
@@ -69,31 +68,46 @@ public class TaskContext {
             attachedContexts.put(ReadingTaskContext.class, this);
         }
 
+        public TaskContext getMainContext() {
+            return TaskContext.this;
+        }
+
+
         public SocketChannel getChannel() {
             return channel;
         }
 
     }
 
-    public class WritingTaskContext extends TaskContext {
+    public class WritingTaskContext {
         private final SocketChannel channel;
         public WritingTaskContext(@NotNull final SocketChannel channel) {
             this.channel = channel;
             attachedContexts.put(WritingTaskContext.class, this);
         }
 
+        public TaskContext getMainContext() {
+            return TaskContext.this;
+        }
+
+
         public SocketChannel getChannel() {
             return channel;
         }
     }
 
-    public class SortingTaskContext extends TaskContext {
+    public class SortingTaskContext {
         private List<Integer> array;
         public SortingTaskContext(@NotNull final PerformanceTestProtocol.SortRequest request) {
             array = new ArrayList<>(request.getArrayElementsList());
             isLast = request.getIsLast();
             attachedContexts.put(SortingTaskContext.class, this);
         }
+
+        public TaskContext getMainContext() {
+            return TaskContext.this;
+        }
+
 
         public List<Integer> getArray() {
             return array;

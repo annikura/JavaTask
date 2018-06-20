@@ -13,12 +13,12 @@ public class SortingTask implements CallbackTask<TaskContext.SortingTaskContext,
                      @NotNull Consumer<TaskContext.WritingTaskContext> onSuccess,
                      @NotNull BiConsumer<TaskContext.SortingTaskContext, Exception> onFailure) {
         Logger.getAnonymousLogger().info("Starting sort");
-        context.setStartSortTime();
+        context.getMainContext().setStartSortTime();
         sort(context.getArray());
         Logger.getAnonymousLogger().info("Sorted");
-        context.setFinishedSortTime();
+        context.getMainContext().setFinishedSortTime();
         Logger.getAnonymousLogger().info("On Success");
-        onSuccess.accept(context.getAttachedContext(TaskContext.WritingTaskContext.class));
+        onSuccess.accept(context.getMainContext().getAttachedContext(TaskContext.WritingTaskContext.class));
     }
 
     private void sort(@NotNull List<Integer> array) {

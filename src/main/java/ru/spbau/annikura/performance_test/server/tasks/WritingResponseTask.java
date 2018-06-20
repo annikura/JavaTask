@@ -6,6 +6,7 @@ import ru.spbau.annikura.performance_test.PerformanceTestProtocol;
 import java.nio.ByteBuffer;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public class WritingResponseTask implements CallbackTask<TaskContext.WritingTaskContext, TaskContext> {
     @Override
@@ -26,16 +27,17 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
             @Override
             public boolean makeAttempt() {
                 if (buffer == null) {
-                    context.setFinishRequestHandleTime();
+                    context.getMainContext().setFinishRequestHandleTime();
                     TaskContext.SortingTaskContext sortingTaskContext =
-                            context.getAttachedContext(TaskContext.SortingTaskContext.class);
+                            context.getMainContext().getAttachedContext(TaskContext.SortingTaskContext.class);
                     PerformanceTestProtocol.SortResponse response = PerformanceTestProtocol.SortResponse.newBuilder()
                             .addAllArrayElements(sortingTaskContext.getArray())
                             .setArraySize(sortingTaskContext.getArray().size())
                             .setStats(PerformanceTestProtocol.SortResponse.Statistics.newBuilder()
-                                    .setSortTime(context.getSortTime())
-                                    .setRequestTime(context.getRequestHandleTime())
+                                    .setSortTime(context.getMainContext().getSortTime())
+                                    .setRequestTime(context.getMainContext().getRequestHandleTime())
                             ).build();
+                    Logger.getAnonymousLogger().info("Ready to write " + response.getSerializedSize());
                     buffer = ByteBuffer.allocate(4 + response.getSerializedSize());
                     buffer.putInt(response.getSerializedSize());
                     buffer.put(response.toByteArray());
