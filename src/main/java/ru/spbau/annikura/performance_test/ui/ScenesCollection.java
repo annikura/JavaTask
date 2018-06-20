@@ -19,7 +19,9 @@ import java.util.logging.Logger;
 
 public class ScenesCollection {
     private String host;
-    private int port;
+    private int simpleServerPort;
+    private int threadPoolServerPort;
+    private int notBlockingServerPort;
 
     private int from = 10;
     private int stepSize = 10;
@@ -69,13 +71,20 @@ public class ScenesCollection {
         VBox body = new VBox();
 
         VBox vBox = new VBox(10);
-        final TextField portField = new TextField();
-        portField.setPromptText("Port number");
+        final TextField simpleServerPortField = new TextField();
+        simpleServerPortField.setPromptText("Simple server port number");
+
+        final TextField threadPoolServerPortField = new TextField();
+        threadPoolServerPortField.setPromptText("Thread pool server port number");
+
+        final TextField notBlockingServerPortField = new TextField();
+        notBlockingServerPortField.setPromptText("Not blocking server port number");
+
         final TextField serverField = new TextField();
         serverField.setPromptText("Server url");
         Button okButton = new Button("Next");
 
-        vBox.getChildren().addAll(portField, serverField, okButton);
+        vBox.getChildren().addAll(simpleServerPortField, threadPoolServerPortField, notBlockingServerPortField, serverField, okButton);
         vBox.setAlignment(Pos.CENTER);
         vBox.setMaxWidth(300);
 
@@ -83,21 +92,25 @@ public class ScenesCollection {
         body.getChildren().addAll(vBox);
 
         okButton.setOnAction(event -> {
-            String port = portField.getCharacters().toString();
+            String port1 = simpleServerPortField.getCharacters().toString();
+            String port2 = threadPoolServerPortField.getCharacters().toString();
+            String port3 = notBlockingServerPortField.getCharacters().toString();
             String url = serverField.getCharacters().toString();
 
-            boolean portIsValid = port.length() <= 5 && port.matches("\\d+");
-            if (!portIsValid) {
+            if (!portIsValid(port1) || !portIsValid(port2) || !portIsValid(port3)) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Invalid port");
-                alert.setHeaderText("Port is invalid. Please, try again");
+                alert.setHeaderText("One of the ports is invalid. Please, try again");
                 alert.setContentText("Port should be an integer from 0 to 65535.");
                 alert.showAndWait();
                 return;
             }
 
             host = url;
-            this.port = Integer.valueOf(port);
+
+            this.simpleServerPort = Integer.valueOf(port1);
+            this.threadPoolServerPort = Integer.valueOf(port2);
+            this.notBlockingServerPort = Integer.valueOf(port3);
 
             stage.setScene(newSettingsMenu(
                     stage.getScene().getWidth(),
@@ -107,6 +120,10 @@ public class ScenesCollection {
         okButton.setStyle(BUTTONS_CSS);
         body.setStyle(MAIN_CSS);
         return new Scene(body, width, height);
+    }
+
+    boolean portIsValid(@NotNull String port) {
+        return port.length() <= 5 && port.matches("\\d+");
     }
 
     private Scene newSettingsMenu(double width, double height, Stage stage) {
@@ -360,11 +377,11 @@ public class ScenesCollection {
                     numOfClients = numOfClients + i * stepSize;
             }
             PerformanceTester tester = new PerformanceTester(arraySize, numOfClients, delay, 4);
-            simpleServerResults[i] = tester.startTest(host, port);
+            simpleServerResults[i] = tester.startTest(host, simpleServerPort);
             Logger.getAnonymousLogger().info("Simple done");
-            threadPoolServerResults[i] = tester.startTest(host, port + 1);
+            threadPoolServerResults[i] = tester.startTest(host, threadPoolServerPort);
             Logger.getAnonymousLogger().info("Pool done");
-            notBlockingServerResults[i] = tester.startTest(host, port + 2);
+            notBlockingServerResults[i] = tester.startTest(host, notBlockingServerPort);
         }
     }
 
