@@ -11,14 +11,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
+import ru.spbau.annikura.performance_test.client.PerformanceTester;
 import ru.spbau.annikura.performance_test.client.TestResult;
+
+import java.io.IOException;
 
 public class ScenesCollection {
     private String host;
     private int port;
 
     private int from = 10;
-    private int stepSize = 5;
+    private int stepSize = 10;
     private int numOfSteps = 10;
 
     private TestResult[] simpleServerResults;
@@ -27,6 +30,10 @@ public class ScenesCollection {
 
     private ChartType chartType;
     private ParameterType parameterType;
+
+    private int fromArraySize;
+    private int fromDelayTime;
+    private int fromNumOfClients;
 
     private final static String MAIN_CSS = "-fx-background-color: #808080";
     private final static String BUTTONS_CSS =   "-fx-background-color: #4d4d4d;" +
@@ -54,7 +61,7 @@ public class ScenesCollection {
     private enum ParameterType {
         DELAY_TIME,
         NUM_OF_CLIENTS,
-        ARRAY_SIZE
+        ARRAY_SIZE;
     }
 
     public Scene newLogInScene(final double width, final double height, @NotNull final Stage stage) {
@@ -131,7 +138,7 @@ public class ScenesCollection {
 
         Label fromLabel = new Label("From");
         Label stepLabel = new Label("Step size");
-        Label numOfSteps = new Label("#Steps");
+        Label numOfStepsLabel = new Label("#Steps");
 
         Label arrayElementsLabel = new Label("Array elements (quantity)");
         Label timeDeltaLabel = new Label("Time delta (ms)");
@@ -139,17 +146,17 @@ public class ScenesCollection {
 
         fromLabel.setStyle(TEXT_CSS);
         stepLabel.setStyle(TEXT_CSS);
-        numOfSteps.setStyle(TEXT_CSS);
+        numOfStepsLabel.setStyle(TEXT_CSS);
         arrayElementsLabel.setStyle(TEXT_CSS);
         timeDeltaLabel.setStyle(TEXT_CSS);
         numOfClientsLabel.setStyle(TEXT_CSS);
 
-        TextField fromArrayElemetsField = new TextField();
+        TextField fromArrayElementsField = new TextField();
         TextField fromTimeDeltaField = new TextField();
         TextField fromNumOfClientsField = new TextField();
 
-        TextField stepArrayElemetsField = new TextField();
-        stepArrayElemetsField.setDisable(true);
+        TextField stepArrayElementsField = new TextField();
+        stepArrayElementsField.setDisable(true);
         TextField stepTimeDeltaField = new TextField();
         stepTimeDeltaField.setDisable(true);
         TextField stepNumOfClientsField = new TextField();
@@ -164,15 +171,15 @@ public class ScenesCollection {
 
         fieldsPane.add(fromLabel, 1, 0);
         fieldsPane.add(stepLabel, 2, 0);
-        fieldsPane.add(numOfSteps, 3, 0);
+        fieldsPane.add(numOfStepsLabel, 3, 0);
 
         fieldsPane.add(arrayElementsLabel, 0, 1);
         fieldsPane.add(timeDeltaLabel, 0, 2);
         fieldsPane.add(numOfClientsLabel, 0, 3);
 
 
-        fieldsPane.add(fromArrayElemetsField, 1, 1);
-        fieldsPane.add(stepArrayElemetsField, 2, 1);
+        fieldsPane.add(fromArrayElementsField, 1, 1);
+        fieldsPane.add(stepArrayElementsField, 2, 1);
         fieldsPane.add(numOfStepsArrayElemetsField, 3, 1);
 
         fieldsPane.add(fromTimeDeltaField, 1, 2);
@@ -185,7 +192,7 @@ public class ScenesCollection {
 
         arraySizeParameter.selectedProperty().addListener(e -> {
             if (arraySizeParameter.isSelected()) {
-                stepArrayElemetsField.setDisable(false);
+                stepArrayElementsField.setDisable(false);
                 numOfStepsArrayElemetsField.setDisable(false);
                 stepNumOfClientsField.setDisable(true);
                 stepNumOfClientsField.clear();
@@ -199,8 +206,8 @@ public class ScenesCollection {
         });
         numOfClientsParameter.selectedProperty().addListener(e -> {
             if (numOfClientsParameter.isSelected()) {
-                stepArrayElemetsField.setDisable(true);
-                stepArrayElemetsField.clear();
+                stepArrayElementsField.setDisable(true);
+                stepArrayElementsField.clear();
                 numOfStepsArrayElemetsField.setDisable(true);
                 numOfStepsArrayElemetsField.clear();
                 stepNumOfClientsField.setDisable(false);
@@ -213,8 +220,8 @@ public class ScenesCollection {
         });
         timeDeltaParameter.selectedProperty().addListener(e -> {
             if (timeDeltaParameter.isSelected()) {
-                stepArrayElemetsField.setDisable(true);
-                stepArrayElemetsField.clear();
+                stepArrayElementsField.setDisable(true);
+                stepArrayElementsField.clear();
                 numOfStepsArrayElemetsField.setDisable(true);
                 numOfStepsArrayElemetsField.clear();
                 stepNumOfClientsField.setDisable(true);
@@ -227,9 +234,11 @@ public class ScenesCollection {
             }
         });
 
+        ToggleGroup chartTypeToggle = new ToggleGroup();
         RadioButton sortTimeToggle = new RadioButton("Sort time avg");
         RadioButton requestHandleTimeToggle = new RadioButton("Request handle time avg");
         RadioButton clientTimeToggle = new RadioButton("Client time avg");
+        chartTypeToggle.getToggles().addAll(sortTimeToggle, requestHandleTimeToggle, clientTimeToggle);
         HBox chartTypeBox = new HBox(10);
         chartTypeBox.getChildren().addAll(sortTimeToggle, requestHandleTimeToggle, clientTimeToggle);
 
@@ -244,12 +253,87 @@ public class ScenesCollection {
             stage.setScene(newLogInScene(stage.getScene().getWidth(), stage.getScene().getHeight(), stage));
         });
         nextButton.setOnAction(e -> {
+            if (arraySizeParameter.isSelected()) parameterType = ParameterType.ARRAY_SIZE;
+            if (timeDeltaParameter.isSelected()) parameterType = ParameterType.DELAY_TIME;
+            if (numOfClientsParameter.isSelected()) parameterType = ParameterType.NUM_OF_CLIENTS;
+
+            if (sortTimeToggle.isSelected()) chartType = ChartType.SORT_TIME_AVERAGE;
+            if (requestHandleTimeToggle.isSelected()) chartType = ChartType.REQUEST_HANDLING_TIME_AVERAGE;
+            if (clientTimeToggle.isSelected()) chartType = ChartType.CLIENT_TIME_AVERAGE;
+
+            if (parameterType.equals(ParameterType.ARRAY_SIZE)) {
+                from = Integer.valueOf(fromArrayElementsField.getText());
+                stepSize = Integer.valueOf(stepArrayElementsField.getText());
+                numOfSteps = Integer.valueOf(numOfStepsArrayElemetsField.getText());
+            }
+
+            if (parameterType.equals(ParameterType.DELAY_TIME)) {
+                from = Integer.valueOf(fromTimeDeltaField.getText());
+                stepSize = Integer.valueOf(stepTimeDeltaField.getText());
+                numOfSteps = Integer.valueOf(numOfStepsTimeDeltaField.getText());
+            }
+
+            if (parameterType.equals(ParameterType.NUM_OF_CLIENTS)) {
+                from = Integer.valueOf(fromNumOfClientsField.getText());
+                stepSize = Integer.valueOf(stepNumOfClientsField.getText());
+                numOfSteps = Integer.valueOf(numOfStepsNumOfClientsField.getText());
+            }
+
+            fromArraySize = Integer.valueOf(fromArrayElementsField.getCharacters().toString());
+            fromNumOfClients = Integer.valueOf(fromNumOfClientsField.getCharacters().toString());
+            fromDelayTime = Integer.valueOf(fromTimeDeltaField.getCharacters().toString());
+            stage.setScene(newWaitScene(stage.getScene().getWidth(), stage.getScene().getHeight(), stage));
+            countData();
             stage.setScene(newChartScene(stage.getScene().getWidth(), stage.getScene().getHeight(), stage));
         });
 
         innerBox.getChildren().addAll(title, toggles, fieldsPane, chartTypeBox, buttonBox);
         body.getChildren().addAll(innerBox);
         body.setStyle(MAIN_CSS);
+        return new Scene(body, width, height);
+    }
+
+    private void countData() {
+        simpleServerResults = new TestResult[numOfSteps];
+        threadPoolServerResults = new TestResult[numOfSteps];
+        notBlockingServerResults = new TestResult[numOfSteps];
+
+        for (int i = 0; i < numOfSteps; i++) {
+            int arraySize = fromArraySize;
+            int numOfClients = fromNumOfClients;
+            int delay = fromDelayTime;
+
+            switch (parameterType) {
+                case ARRAY_SIZE:
+                    arraySize = arraySize + i * stepSize;
+                    break;
+                case DELAY_TIME:
+                    delay = delay + i * stepSize;
+                    break;
+                case NUM_OF_CLIENTS:
+                    numOfClients = numOfClients + i * stepSize;
+            }
+            PerformanceTester tester = new PerformanceTester(arraySize, numOfClients, delay, 4);
+            try {
+                simpleServerResults[i] = tester.startTest(host, port);
+                threadPoolServerResults[i] = tester.startTest(host, port + 1);
+                notBlockingServerResults[i] = tester.startTest(host, port + 2);
+            } catch (IOException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Could not connect to server");
+                alert.setHeaderText("Probably server is invalid. Please, try again");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+            }
+        }
+    }
+
+    private Scene newWaitScene(double width, double height, Stage stage) {
+        VBox body = new VBox();
+        Label wait = new Label("Please, wait");
+        wait.setStyle(TEXT_CSS);
+        body.setAlignment(Pos.CENTER);
+        body.getChildren().addAll(wait);
         return new Scene(body, width, height);
     }
 
