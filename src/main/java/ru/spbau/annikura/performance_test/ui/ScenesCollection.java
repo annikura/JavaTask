@@ -237,8 +237,11 @@ public class ScenesCollection {
 
         ToggleGroup chartTypeToggle = new ToggleGroup();
         RadioButton sortTimeToggle = new RadioButton("Sort time avg");
+        sortTimeToggle.setStyle(TEXT_CSS);
         RadioButton requestHandleTimeToggle = new RadioButton("Request handle time avg");
+        requestHandleTimeToggle.setStyle(TEXT_CSS);
         RadioButton clientTimeToggle = new RadioButton("Client time avg");
+        clientTimeToggle.setStyle(TEXT_CSS);
         chartTypeToggle.getToggles().addAll(sortTimeToggle, requestHandleTimeToggle, clientTimeToggle);
         HBox chartTypeBox = new HBox(10);
         chartTypeBox.getChildren().addAll(sortTimeToggle, requestHandleTimeToggle, clientTimeToggle);
@@ -261,30 +264,57 @@ public class ScenesCollection {
             if (sortTimeToggle.isSelected()) chartType = ChartType.SORT_TIME_AVERAGE;
             if (requestHandleTimeToggle.isSelected()) chartType = ChartType.REQUEST_HANDLING_TIME_AVERAGE;
             if (clientTimeToggle.isSelected()) chartType = ChartType.CLIENT_TIME_AVERAGE;
+            if (parameterType == null || chartType == null) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Unselected toggle");
+                alert.setHeaderText("Please, select toggle.");
+                alert.showAndWait();
+                return;
+            }
 
             if (parameterType.equals(ParameterType.ARRAY_SIZE)) {
+                if (!validateNumberFields(fromArrayElementsField, stepArrayElementsField, numOfStepsArrayElemetsField)) {
+                    return;
+                }
                 from = Integer.valueOf(fromArrayElementsField.getText());
                 stepSize = Integer.valueOf(stepArrayElementsField.getText());
                 numOfSteps = Integer.valueOf(numOfStepsArrayElemetsField.getText());
             }
 
             if (parameterType.equals(ParameterType.DELAY_TIME)) {
+                if (!validateNumberFields(fromTimeDeltaField, stepTimeDeltaField, numOfStepsTimeDeltaField)) {
+                    return;
+                }
                 from = Integer.valueOf(fromTimeDeltaField.getText());
                 stepSize = Integer.valueOf(stepTimeDeltaField.getText());
                 numOfSteps = Integer.valueOf(numOfStepsTimeDeltaField.getText());
             }
 
             if (parameterType.equals(ParameterType.NUM_OF_CLIENTS)) {
+                if (!validateNumberFields(fromNumOfClientsField, stepNumOfClientsField, numOfStepsNumOfClientsField)) {
+                    return;
+                }
                 from = Integer.valueOf(fromNumOfClientsField.getText());
                 stepSize = Integer.valueOf(stepNumOfClientsField.getText());
                 numOfSteps = Integer.valueOf(numOfStepsNumOfClientsField.getText());
             }
 
+            if (!validateNumberFields(fromArrayElementsField, fromNumOfClientsField, fromTimeDeltaField)) {
+                return;
+            }
             fromArraySize = Integer.valueOf(fromArrayElementsField.getCharacters().toString());
             fromNumOfClients = Integer.valueOf(fromNumOfClientsField.getCharacters().toString());
             fromDelayTime = Integer.valueOf(fromTimeDeltaField.getCharacters().toString());
-            stage.setScene(newWaitScene(stage.getScene().getWidth(), stage.getScene().getHeight(), stage));
-            countData();
+            try {
+                countData();
+            } catch (IOException e1) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Could not connect to server");
+                alert.setHeaderText("Probably server is invalid. Please, try again");
+                alert.setContentText(e1.getMessage());
+                alert.showAndWait();
+                return;
+            }
             stage.setScene(newChartScene(stage.getScene().getWidth(), stage.getScene().getHeight(), stage));
         });
 
@@ -294,7 +324,22 @@ public class ScenesCollection {
         return new Scene(body, width, height);
     }
 
-    private void countData() {
+    private boolean validateNumberFields(@NotNull TextField... fields) {
+        for (TextField field : fields) {
+            String text = field.getText();
+            if (text.length() <= 5 && text.matches("\\d+") && Integer.valueOf(text) > 0) {
+                continue;
+            }
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Invalid fields");
+            alert.setHeaderText("All enables text fields should be filled with integer in range 1 .. 99999");
+            alert.showAndWait();
+            return false;
+        }
+        return true;
+    }
+
+    private void countData() throws IOException {
         simpleServerResults = new TestResult[numOfSteps];
         threadPoolServerResults = new TestResult[numOfSteps];
         notBlockingServerResults = new TestResult[numOfSteps];
@@ -306,7 +351,7 @@ public class ScenesCollection {
 
             switch (parameterType) {
                 case ARRAY_SIZE:
-                    arraySize = arraySize + i * stepSize;
+                    arraySize  = arraySize + i * stepSize;
                     break;
                 case DELAY_TIME:
                     delay = delay + i * stepSize;
@@ -315,19 +360,11 @@ public class ScenesCollection {
                     numOfClients = numOfClients + i * stepSize;
             }
             PerformanceTester tester = new PerformanceTester(arraySize, numOfClients, delay, 4);
-            try {
-                simpleServerResults[i] = tester.startTest(host, port);
-                Logger.getAnonymousLogger().info("Simple done");
-                threadPoolServerResults[i] = tester.startTest(host, port + 1);
-                Logger.getAnonymousLogger().info("Pool done");
-                notBlockingServerResults[i] = tester.startTest(host, port + 2);
-            } catch (IOException e) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Could not connect to server");
-                alert.setHeaderText("Probably server is invalid. Please, try again");
-                alert.setContentText(e.getMessage());
-                alert.showAndWait();
-            }
+            simpleServerResults[i] = tester.startTest(host, port);
+            Logger.getAnonymousLogger().info("Simple done");
+            threadPoolServerResults[i] = tester.startTest(host, port + 1);
+            Logger.getAnonymousLogger().info("Pool done");
+            notBlockingServerResults[i] = tester.startTest(host, port + 2);
         }
     }
 
