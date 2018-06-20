@@ -40,7 +40,7 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
                     context.getMainContext().setStartRequestHandleTime();
                     PerformanceTestProtocol.SortRequest request = PerformanceTestProtocol.SortRequest.parseFrom(buf.array());
                     context.getMainContext().setIsLast(request.getIsLast());
-                    Logger.getAnonymousLogger().info("onSuccess");
+                    Logger.getAnonymousLogger().info("Array size " + request.getArraySize());
 
                     onSuccess.accept(context.getMainContext().new SortingTaskContext(request));
                     return true;
@@ -57,6 +57,6 @@ public class ReadingRequestTask implements CallbackTask<TaskContext.ReadingTaskC
                      @NotNull Consumer<TaskContext.SortingTaskContext> onSuccess,
                      @NotNull BiConsumer<TaskContext.ReadingTaskContext, Exception> onFailure) {
         IncompleteTask task = createIncompleteTask(context, onSuccess, onFailure);
-        task.makeAttempt();
+        while (!task.makeAttempt());
     }
 }

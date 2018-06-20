@@ -4,8 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import ru.spbau.annikura.performance_test.PerformanceTestProtocol;
 import sun.rmi.runtime.Log;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -20,15 +21,19 @@ public class PerformanceTestClient implements Callable<TestResult> {
     private final int arraySize;
     private final long delay;
     private final int numOfRequests;
-    private final SocketChannel channel;
+    private final Socket socket;
+    private final DataInputStream in;
+    private final DataOutputStream out;
+
 
     public PerformanceTestClient(@NotNull String host, int port,
                                  int arraySize, long requestDelay, int requestsPerClient) throws IOException {
         this.arraySize = arraySize;
         delay = requestDelay;
         numOfRequests = requestsPerClient;
-        channel = SocketChannel.open();
-        channel.connect(new InetSocketAddress(host, port));
+        socket = new Socket(host, port);
+        in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+        out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
     }
 
     @NotNull
@@ -48,30 +53,23 @@ public class PerformanceTestClient implements Callable<TestResult> {
                     .setIsLast(i == (numOfRequests - 1))
                     .addAllArrayElements(array).build();
             byte[] requestData = request.toByteArray();
-            ByteBuffer buf = ByteBuffer.allocate(4 + requestData.length);
-            buf.clear();
-            buf.putInt(requestData.length);
-            buf.put(requestData);
-            buf.flip();
-            Logger.getAnonymousLogger().info("Ready to write");
-            channel.write(buf);
+            out.writeInt(requestData.length);
+            out.write(requestData);
+            out.flush();
             Logger.getAnonymousLogger().info("Sent request");
-            buf = ByteBuffer.allocate(4);
-            buf.clear();
 
             Logger.getAnonymousLogger().info("Ready to read");
-            channel.read(buf);
-            Logger.getAnonymousLogger().info("Read " + buf.position() + " bytes");
-            buf.flip();
-            int responseDataSize = buf.getInt();
+            int responseDataSize = in.readInt();
             Logger.getAnonymousLogger().info("Received response size: " + responseDataSize + " in thread " + Thread.currentThread().getName());
-            buf = ByteBuffer.allocate(responseDataSize);
-            buf.clear();
-            channel.read(buf);
+            byte[] responseData = new byte[responseDataSize];
+            int readBytes = 0;
+            while (readBytes < responseDataSize) {
+                readBytes += in.read(responseData, readBytes, responseDataSize - readBytes);
+            }
             Logger.getAnonymousLogger().info("Received response");
 
             @NotNull PerformanceTestProtocol.SortResponse response =
-                    PerformanceTestProtocol.SortResponse.parseFrom(buf.array());
+                    PerformanceTestProtocol.SortResponse.parseFrom(responseData);
             assert validateSortResult(array, response.getArrayElementsList());
             PerformanceTestProtocol.SortResponse.Statistics stats = response.getStats();
             testResult.addRequestStats(stats.getSortTime(), stats.getRequestTime());
@@ -98,6 +96,6 @@ public class PerformanceTestClient implements Callable<TestResult> {
     }
 
     private void terminate() throws IOException {
-        channel.close();
+        socket.close();
     }
 }

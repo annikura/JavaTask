@@ -14,7 +14,7 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
                      @NotNull final Consumer<TaskContext> onSuccess,
                      @NotNull final BiConsumer<TaskContext.WritingTaskContext, Exception> onFailure) {
         IncompleteTask task = createIncompleteTask(context, onSuccess, onFailure);
-        task.makeAttempt();
+        while (!task.makeAttempt());
     }
 
 
@@ -49,6 +49,7 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
                     context.getChannel().write(buffer);
                     if (buffer.position() == buffer.limit()) {
                         onSuccess.accept(context.getMainContext());
+                        return true;
                     }
 
                 } catch (Exception e) {
