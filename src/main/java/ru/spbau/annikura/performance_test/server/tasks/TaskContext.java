@@ -18,9 +18,17 @@ public class TaskContext {
     private long startRequestHandleTime;
     private long finishRequestHandleTime;
 
-    public TaskContext getMainContext() {
-        return TaskContext.this;
+    public String getErrorMessage() {
+        return errorMessage;
     }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    private String errorMessage = null;
+
+
 
     void setIsLast(boolean isLast) {
         this.isLast = isLast;

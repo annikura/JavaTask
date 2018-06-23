@@ -2,7 +2,6 @@ package ru.spbau.annikura.performance_test.client;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
@@ -19,7 +18,8 @@ public class PerformanceTester {
         this.requestsPerClient = requestsPerClient;
     }
 
-    public TestResult startTest(@NotNull final String host, int port) throws IOException {
+    @NotNull
+    public TestResult startTest(@NotNull final String host, int port) throws Exception {
         int cores = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(cores);
         @NotNull ArrayList<Future<TestResult>> futureResults = new ArrayList<>();
@@ -37,7 +37,7 @@ public class PerformanceTester {
                 } catch (InterruptedException e) {
                     continue;
                 } catch (ExecutionException e) {
-                    return null;
+                    throw (Exception) e.getCause();
                 }
             }
         }

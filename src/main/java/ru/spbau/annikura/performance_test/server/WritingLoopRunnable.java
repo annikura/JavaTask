@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public class WritingLoopRunnable implements Runnable {
     volatile private Selector selector;
-    final HashMap<SocketChannel, SelectionKey> keys = new HashMap<>();
+    private final HashMap<SocketChannel, SelectionKey> keys = new HashMap<>();
 
     {
         try {
@@ -52,9 +52,9 @@ public class WritingLoopRunnable implements Runnable {
     }
 
     public void addChannel(@NotNull SocketChannel channel,
-                                        @NotNull TaskContext.WritingTaskContext writingContext,
-                                        @NotNull Consumer<TaskContext> onSuccess,
-                                        @NotNull BiConsumer<TaskContext.WritingTaskContext, Exception> onFailure) {
+                           @NotNull TaskContext.WritingTaskContext writingContext,
+                           @NotNull Consumer<TaskContext> onSuccess,
+                           @NotNull BiConsumer<TaskContext.WritingTaskContext, Exception> onFailure) {
         try {
             synchronized (keys) {
                 keys.put(channel,
@@ -69,6 +69,8 @@ public class WritingLoopRunnable implements Runnable {
 
     public void remove(@NotNull SocketChannel channel) {
         synchronized (keys) {
+            if (!keys.containsKey(channel))
+                return;
             keys.get(channel).cancel();
             keys.remove(channel);
         }

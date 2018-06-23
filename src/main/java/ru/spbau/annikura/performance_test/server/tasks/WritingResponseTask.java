@@ -29,13 +29,20 @@ public class WritingResponseTask implements CallbackTask<TaskContext.WritingTask
                     context.getMainContext().setFinishRequestHandleTime();
                     TaskContext.SortingTaskContext sortingTaskContext =
                             context.getMainContext().getAttachedContext(TaskContext.SortingTaskContext.class);
-                    PerformanceTestProtocol.SortResponse response = PerformanceTestProtocol.SortResponse.newBuilder()
-                            .addAllArrayElements(sortingTaskContext.getArray())
-                            .setArraySize(sortingTaskContext.getArray().size())
-                            .setStats(PerformanceTestProtocol.SortResponse.Statistics.newBuilder()
-                                    .setSortTime(context.getMainContext().getSortTime())
-                                    .setRequestTime(context.getMainContext().getRequestHandleTime())
-                            ).build();
+                    PerformanceTestProtocol.SortResponse response;
+                    if (context.getMainContext().getErrorMessage() != null) {
+                        response = PerformanceTestProtocol.SortResponse.newBuilder()
+                                .setArraySize(0)
+                                .setErrorMessage(context.getMainContext().getErrorMessage()).build();
+                    } else {
+                        response = PerformanceTestProtocol.SortResponse.newBuilder()
+                                .addAllArrayElements(sortingTaskContext.getArray())
+                                .setArraySize(sortingTaskContext.getArray().size())
+                                .setStats(PerformanceTestProtocol.SortResponse.Statistics.newBuilder()
+                                        .setSortTime(context.getMainContext().getSortTime())
+                                        .setRequestTime(context.getMainContext().getRequestHandleTime())
+                                ).build();
+                    }
                     byte[] responseData = response.toByteArray();
                     Logger.getAnonymousLogger().info("Ready to write " + responseData.length);
                     buffer = ByteBuffer.allocate(4 + responseData.length);

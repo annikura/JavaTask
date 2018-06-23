@@ -326,8 +326,15 @@ public class ScenesCollection {
                 countData();
             } catch (IOException e1) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Could not connect to server");
-                alert.setHeaderText("Probably server is invalid. Please, try again");
+                alert.setTitle("Server connection failure");
+                alert.setHeaderText("An error occurred while sending requests. Please, try again");
+                alert.setContentText(e1.getMessage());
+                alert.showAndWait();
+                return;
+            } catch (Exception e1) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Server execution failure");
+                alert.setHeaderText("An error occurred while executing requests. Please, try again");
                 alert.setContentText(e1.getMessage());
                 alert.showAndWait();
                 return;
@@ -356,7 +363,7 @@ public class ScenesCollection {
         return true;
     }
 
-    private void countData() throws IOException {
+    private void countData() throws Exception {
         simpleServerResults = new TestResult[numOfSteps];
         threadPoolServerResults = new TestResult[numOfSteps];
         notBlockingServerResults = new TestResult[numOfSteps];

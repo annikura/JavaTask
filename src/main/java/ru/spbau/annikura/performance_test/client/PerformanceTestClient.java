@@ -2,13 +2,9 @@ package ru.spbau.annikura.performance_test.client;
 
 import org.jetbrains.annotations.NotNull;
 import ru.spbau.annikura.performance_test.PerformanceTestProtocol;
-import sun.rmi.runtime.Log;
 
 import java.io.*;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -37,7 +33,7 @@ public class PerformanceTestClient implements Callable<TestResult> {
     }
 
     @NotNull
-    public TestResult call() throws IOException {
+    public TestResult call() throws IOException, ServerExecutionException {
         long startClientTime = System.currentTimeMillis();
 
         TestResult testResult = new TestResult();
@@ -46,7 +42,7 @@ public class PerformanceTestClient implements Callable<TestResult> {
         for (int i = 0; i < numOfRequests; i++) {
             Logger.getAnonymousLogger().info("Starting request #" + i);
             for (int j = 0; j < arraySize; j++) {
-                array.add(i, 1);
+                array.add(i, random.nextInt());
             }
             @NotNull PerformanceTestProtocol.SortRequest request = PerformanceTestProtocol.SortRequest.newBuilder()
                     .setArraySize(arraySize)
@@ -71,6 +67,9 @@ public class PerformanceTestClient implements Callable<TestResult> {
             assert validateSortResult(array, response.getArrayElementsList());
             PerformanceTestProtocol.SortResponse.Statistics stats = response.getStats();
             testResult.addRequestStats(stats.getSortTime(), stats.getRequestTime());
+            if (response.hasErrorMessage()) {
+                throw new ServerExecutionException(response.getErrorMessage());
+            }
             Logger.getAnonymousLogger().info("Counted stats");
             if (i != numOfRequests - 1) {
                 try {

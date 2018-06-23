@@ -71,6 +71,8 @@ public class ReadingLoopRunnable implements Runnable {
 
     public void remove(@NotNull SocketChannel channel) {
         synchronized (keys) {
+            if (!keys.containsKey(channel))
+                return;
             keys.get(channel).cancel();
             keys.remove(channel);
         }

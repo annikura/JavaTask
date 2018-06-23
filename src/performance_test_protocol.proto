@@ -21,4 +21,5 @@ message SortResponse {
     }
 
     required Statistics stats = 7;
+    optional string errorMessage = 9;
 }

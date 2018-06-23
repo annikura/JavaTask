@@ -1,6 +1,7 @@
 package ru.spbau.annikura.performance_test.server;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.spbau.annikura.performance_test.server.tasks.SortingTask;
 import ru.spbau.annikura.performance_test.server.tasks.TaskContext;
 
@@ -9,8 +10,11 @@ import java.net.InetSocketAddress;
 import java.nio.channels.Channel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class TestServerNotBlocking implements PerformanceTestServerInterface {
@@ -51,27 +55,62 @@ public class TestServerNotBlocking implements PerformanceTestServerInterface {
         TaskContext.ReadingTaskContext readContext = context.new ReadingTaskContext(channel);
         context.new WritingTaskContext(channel);
 
+        WritingOnSuccessHandler writingOnSuccessHandler = new WritingOnSuccessHandler(channel);
+
+
         readingLoop.addChannel(channel, readContext, sortingTaskContext -> {
             sortThreadPool.submit(() -> {
                 new SortingTask().call(sortingTaskContext, writingTaskContext -> {
-                    writingLoop.addChannel(channel, writingTaskContext, taskContext -> {
-                        if (taskContext.isLast()) {
-                            readingLoop.remove(channel);
-                            writingLoop.remove(channel);
-                        }
-                    }, (writingTaskContext1, e) -> {
+                    writingLoop.addChannel(channel, writingTaskContext, writingOnSuccessHandler, (writingTaskContext1, e) -> {
                         Logger.getAnonymousLogger().severe("Writing failed: " + e.getMessage());
+                        context.setErrorMessage(e.getMessage());
+                        closeChannel(channel);
+
                     });
                 }, (sortingTaskContext1, e) -> {
                     Logger.getAnonymousLogger().severe("Sort failed: " + e.getMessage());
+                    context.setErrorMessage(e.getMessage());
+                    writingLoop.addChannel(channel,
+                            context.getAttachedContext(TaskContext.WritingTaskContext.class),
+                            writingOnSuccessHandler, (writingTaskContext, e1) -> {
+                                closeChannel(channel);
+                            });
                 });
             });
         }, (readingTaskContext, e) -> {
             Logger.getAnonymousLogger().severe("Reading failed: " + e.getMessage());
+            context.setErrorMessage(e.getMessage());
+            writingLoop.addChannel(channel, context.getAttachedContext(TaskContext.WritingTaskContext.class),
+                    writingOnSuccessHandler, ((writingTaskContext, e1) -> {
+                        closeChannel(channel);
+                    }));
         });
-
         Logger.getAnonymousLogger().info("Accepted new connection");
 
+    }
+    private class WritingOnSuccessHandler implements Consumer<TaskContext> {
+        private SocketChannel channel;
+
+        WritingOnSuccessHandler(SocketChannel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public void accept(TaskContext taskContext) {
+            if (taskContext.isLast() || taskContext.getErrorMessage() != null) {
+                closeChannel(channel);
+            }
+        }
+    }
+
+    private void closeChannel(SocketChannel channel) {
+        readingLoop.remove(channel);
+        writingLoop.remove(channel);
+        try {
+            channel.close();
+        } catch (IOException ignored) {
+            // nothing can be done.
+        }
     }
 }
 

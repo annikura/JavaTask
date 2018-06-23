@@ -774,6 +774,20 @@ public final class PerformanceTestProtocol {
      * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
      */
     ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.StatisticsOrBuilder getStatsOrBuilder();
+
+    /**
+     * <code>optional string errorMessage = 9;</code>
+     */
+    boolean hasErrorMessage();
+    /**
+     * <code>optional string errorMessage = 9;</code>
+     */
+    java.lang.String getErrorMessage();
+    /**
+     * <code>optional string errorMessage = 9;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorMessageBytes();
   }
   /**
    * Protobuf type {@code performance_tester.SortResponse}
@@ -789,6 +803,7 @@ public final class PerformanceTestProtocol {
     private SortResponse() {
       arraySize_ = 0;
       arrayElements_ = java.util.Collections.emptyList();
+      errorMessage_ = "";
     }
 
     @java.lang.Override
@@ -856,6 +871,12 @@ public final class PerformanceTestProtocol {
                 stats_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000002;
+              break;
+            }
+            case 74: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000004;
+              errorMessage_ = bs;
               break;
             }
           }
@@ -1513,6 +1534,48 @@ public final class PerformanceTestProtocol {
       return stats_ == null ? ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics.getDefaultInstance() : stats_;
     }
 
+    public static final int ERRORMESSAGE_FIELD_NUMBER = 9;
+    private volatile java.lang.Object errorMessage_;
+    /**
+     * <code>optional string errorMessage = 9;</code>
+     */
+    public boolean hasErrorMessage() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional string errorMessage = 9;</code>
+     */
+    public java.lang.String getErrorMessage() {
+      java.lang.Object ref = errorMessage_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          errorMessage_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string errorMessage = 9;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorMessageBytes() {
+      java.lang.Object ref = errorMessage_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        errorMessage_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1546,6 +1609,9 @@ public final class PerformanceTestProtocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeMessage(7, getStats());
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 9, errorMessage_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -1570,6 +1636,9 @@ public final class PerformanceTestProtocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(7, getStats());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, errorMessage_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -1600,6 +1669,11 @@ public final class PerformanceTestProtocol {
         result = result && getStats()
             .equals(other.getStats());
       }
+      result = result && (hasErrorMessage() == other.hasErrorMessage());
+      if (hasErrorMessage()) {
+        result = result && getErrorMessage()
+            .equals(other.getErrorMessage());
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -1622,6 +1696,10 @@ public final class PerformanceTestProtocol {
       if (hasStats()) {
         hash = (37 * hash) + STATS_FIELD_NUMBER;
         hash = (53 * hash) + getStats().hashCode();
+      }
+      if (hasErrorMessage()) {
+        hash = (37 * hash) + ERRORMESSAGE_FIELD_NUMBER;
+        hash = (53 * hash) + getErrorMessage().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -1752,6 +1830,8 @@ public final class PerformanceTestProtocol {
           statsBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000004);
+        errorMessage_ = "";
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -1793,6 +1873,10 @@ public final class PerformanceTestProtocol {
         } else {
           result.stats_ = statsBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.errorMessage_ = errorMessage_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1850,6 +1934,11 @@ public final class PerformanceTestProtocol {
         }
         if (other.hasStats()) {
           mergeStats(other.getStats());
+        }
+        if (other.hasErrorMessage()) {
+          bitField0_ |= 0x00000008;
+          errorMessage_ = other.errorMessage_;
+          onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -2103,6 +2192,82 @@ public final class PerformanceTestProtocol {
         }
         return statsBuilder_;
       }
+
+      private java.lang.Object errorMessage_ = "";
+      /**
+       * <code>optional string errorMessage = 9;</code>
+       */
+      public boolean hasErrorMessage() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional string errorMessage = 9;</code>
+       */
+      public java.lang.String getErrorMessage() {
+        java.lang.Object ref = errorMessage_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            errorMessage_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string errorMessage = 9;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorMessageBytes() {
+        java.lang.Object ref = errorMessage_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          errorMessage_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string errorMessage = 9;</code>
+       */
+      public Builder setErrorMessage(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        errorMessage_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string errorMessage = 9;</code>
+       */
+      public Builder clearErrorMessage() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        errorMessage_ = getDefaultInstance().getErrorMessage();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string errorMessage = 9;</code>
+       */
+      public Builder setErrorMessageBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        errorMessage_ = value;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
@@ -2179,12 +2344,12 @@ public final class PerformanceTestProtocol {
       "\n\037performance_test_protocol.proto\022\022perfo" +
       "rmance_tester\"G\n\013SortRequest\022\021\n\tarraySiz" +
       "e\030\001 \002(\005\022\025\n\rarrayElements\030\002 \003(\005\022\016\n\006isLast" +
-      "\030\010 \001(\010\"\251\001\n\014SortResponse\022\021\n\tarraySize\030\003 \002" +
+      "\030\010 \001(\010\"\277\001\n\014SortResponse\022\021\n\tarraySize\030\003 \002" +
       "(\005\022\025\n\rarrayElements\030\004 \003(\005\022:\n\005stats\030\007 \002(\013" +
       "2+.performance_tester.SortResponse.Stati" +
-      "stics\0323\n\nStatistics\022\023\n\013requestTime\030\005 \002(\003" +
-      "\022\020\n\010sortTime\030\006 \002(\003B$\n\"ru.spbau.annikura." +
-      "performance_test"
+      "stics\022\024\n\014errorMessage\030\t \001(\t\0323\n\nStatistic" +
+      "s\022\023\n\013requestTime\030\005 \002(\003\022\020\n\010sortTime\030\006 \002(\003" +
+      "B$\n\"ru.spbau.annikura.performance_test"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2209,7 +2374,7 @@ public final class PerformanceTestProtocol {
     internal_static_performance_tester_SortResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_performance_tester_SortResponse_descriptor,
-        new java.lang.String[] { "ArraySize", "ArrayElements", "Stats", });
+        new java.lang.String[] { "ArraySize", "ArrayElements", "Stats", "ErrorMessage", });
     internal_static_performance_tester_SortResponse_Statistics_descriptor =
       internal_static_performance_tester_SortResponse_descriptor.getNestedTypes().get(0);
     internal_static_performance_tester_SortResponse_Statistics_fieldAccessorTable = new
