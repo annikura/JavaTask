@@ -15,6 +15,7 @@ import ru.spbau.annikura.performance_test.client.PerformanceTester;
 import ru.spbau.annikura.performance_test.client.TestResult;
 
 import java.io.*;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 public class ScenesCollection {
@@ -331,11 +332,11 @@ public class ScenesCollection {
                 alert.setContentText(e1.getMessage());
                 alert.showAndWait();
                 return;
-            } catch (Exception e1) {
+            } catch (ExecutionException e1) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Server execution failure");
                 alert.setHeaderText("An error occurred while executing requests. Please, try again");
-                alert.setContentText(e1.getMessage());
+                alert.setContentText(e1.getCause().getMessage());
                 alert.showAndWait();
                 return;
             }
@@ -363,7 +364,7 @@ public class ScenesCollection {
         return true;
     }
 
-    private void countData() throws Exception {
+    private void countData() throws IOException, ExecutionException {
         simpleServerResults = new TestResult[numOfSteps];
         threadPoolServerResults = new TestResult[numOfSteps];
         notBlockingServerResults = new TestResult[numOfSteps];

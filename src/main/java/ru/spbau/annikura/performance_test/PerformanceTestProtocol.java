@@ -763,15 +763,15 @@ public final class PerformanceTestProtocol {
     int getArrayElements(int index);
 
     /**
-     * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+     * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
      */
     boolean hasStats();
     /**
-     * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+     * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
      */
     ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics getStats();
     /**
-     * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+     * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
      */
     ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.StatisticsOrBuilder getStatsOrBuilder();
 
@@ -1516,19 +1516,19 @@ public final class PerformanceTestProtocol {
     public static final int STATS_FIELD_NUMBER = 7;
     private ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics stats_;
     /**
-     * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+     * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
      */
     public boolean hasStats() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+     * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
      */
     public ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics getStats() {
       return stats_ == null ? ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics.getDefaultInstance() : stats_;
     }
     /**
-     * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+     * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
      */
     public ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.StatisticsOrBuilder getStatsOrBuilder() {
       return stats_ == null ? ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics.getDefaultInstance() : stats_;
@@ -1586,13 +1586,11 @@ public final class PerformanceTestProtocol {
         memoizedIsInitialized = 0;
         return false;
       }
-      if (!hasStats()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!getStats().isInitialized()) {
-        memoizedIsInitialized = 0;
-        return false;
+      if (hasStats()) {
+        if (!getStats().isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
       }
       memoizedIsInitialized = 1;
       return true;
@@ -1949,11 +1947,10 @@ public final class PerformanceTestProtocol {
         if (!hasArraySize()) {
           return false;
         }
-        if (!hasStats()) {
-          return false;
-        }
-        if (!getStats().isInitialized()) {
-          return false;
+        if (hasStats()) {
+          if (!getStats().isInitialized()) {
+            return false;
+          }
         }
         return true;
       }
@@ -2079,13 +2076,13 @@ public final class PerformanceTestProtocol {
       private com.google.protobuf.SingleFieldBuilderV3<
           ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics, ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics.Builder, ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.StatisticsOrBuilder> statsBuilder_;
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       public boolean hasStats() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       public ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics getStats() {
         if (statsBuilder_ == null) {
@@ -2095,7 +2092,7 @@ public final class PerformanceTestProtocol {
         }
       }
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       public Builder setStats(ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics value) {
         if (statsBuilder_ == null) {
@@ -2111,7 +2108,7 @@ public final class PerformanceTestProtocol {
         return this;
       }
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       public Builder setStats(
           ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics.Builder builderForValue) {
@@ -2125,7 +2122,7 @@ public final class PerformanceTestProtocol {
         return this;
       }
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       public Builder mergeStats(ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics value) {
         if (statsBuilder_ == null) {
@@ -2145,7 +2142,7 @@ public final class PerformanceTestProtocol {
         return this;
       }
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       public Builder clearStats() {
         if (statsBuilder_ == null) {
@@ -2158,7 +2155,7 @@ public final class PerformanceTestProtocol {
         return this;
       }
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       public ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics.Builder getStatsBuilder() {
         bitField0_ |= 0x00000004;
@@ -2166,7 +2163,7 @@ public final class PerformanceTestProtocol {
         return getStatsFieldBuilder().getBuilder();
       }
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       public ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.StatisticsOrBuilder getStatsOrBuilder() {
         if (statsBuilder_ != null) {
@@ -2177,7 +2174,7 @@ public final class PerformanceTestProtocol {
         }
       }
       /**
-       * <code>required .performance_tester.SortResponse.Statistics stats = 7;</code>
+       * <code>optional .performance_tester.SortResponse.Statistics stats = 7;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
           ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics, ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.Statistics.Builder, ru.spbau.annikura.performance_test.PerformanceTestProtocol.SortResponse.StatisticsOrBuilder> 
@@ -2345,7 +2342,7 @@ public final class PerformanceTestProtocol {
       "rmance_tester\"G\n\013SortRequest\022\021\n\tarraySiz" +
       "e\030\001 \002(\005\022\025\n\rarrayElements\030\002 \003(\005\022\016\n\006isLast" +
       "\030\010 \001(\010\"\277\001\n\014SortResponse\022\021\n\tarraySize\030\003 \002" +
-      "(\005\022\025\n\rarrayElements\030\004 \003(\005\022:\n\005stats\030\007 \002(\013" +
+      "(\005\022\025\n\rarrayElements\030\004 \003(\005\022:\n\005stats\030\007 \001(\013" +
       "2+.performance_tester.SortResponse.Stati" +
       "stics\022\024\n\014errorMessage\030\t \001(\t\0323\n\nStatistic" +
       "s\022\023\n\013requestTime\030\005 \002(\003\022\020\n\010sortTime\030\006 \002(\003" +

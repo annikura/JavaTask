@@ -36,7 +36,7 @@ public class TestServerSimpleRunnable implements Runnable {
                     Logger.getAnonymousLogger().info("Sorted successfully.");
                     new WritingResponseTask().call(writingTaskContext, writingOnSuccessHandler, (writingTaskContext1, e) -> {
                         Logger.getAnonymousLogger().severe("Writing failed: " + e.getMessage());
-                        writingTaskContext.getMainContext().setErrorMessage(e.getMessage());
+                        context.setErrorMessage(e.getMessage());
                         closeChannel(holder, channel);
                     });
                 }, (sortingTaskContext1, e) -> {

@@ -20,6 +20,6 @@ message SortResponse {
         required int64 sortTime = 6;
     }
 
-    required Statistics stats = 7;
+    optional Statistics stats = 7;
     optional string errorMessage = 9;
 }
